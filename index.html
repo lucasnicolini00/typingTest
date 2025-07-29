@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>typing-test</title>
+  </head>
+  <body>
+    <h1>Typing Test</h1>
+    <p></p>
+    <input autofocus />
+  </body>
+  <link rel="stylesheet" href="./styles.css" />
+
+  <script type="module">
+    import { words as INITIAL_WORDS } from "./data.js";
+
+    const $input = document.querySelector("input");
+    const $text = document.querySelector("p");
+
+    initGame();
+    initEvent();
+
+    function initGame() {
+      const words = INITIAL_WORDS.toSorted(() => Math.random() - 0.5).slice(
+        0,
+        30
+      );
+
+      $text.innerHTML = words
+        .map((word) => {
+          const letters = word.split("");
+
+          return `
+            <t-word>
+                ${letters
+                  .map((letter) => `<t-letter>${letter}</t-letter>`)
+                  .join("")}
+            </t-word>
+        `;
+        })
+        .join("");
+      const $firstWord = $text.querySelector("t-word");
+      $firstWord.classList.add("active");
+      const $firstLetter = $firstWord.querySelector("t-letter");
+      $firstLetter.classList.add("active");
+    }
+
+    function initEvent() {
+      document.addEventListener("keydown", () => {
+        $input.focus();
+      });
+      $input.addEventListener("keydown", onKeyDown);
+      $input.addEventListener("keyup", onKeyUp);
+    }
+
+    function onKeyDown(e) {
+      const $currentWord = document.querySelector("t-word.active");
+      const $currentLetter = document.querySelector("t-letter.active");
+
+      if (e.key == " ") {
+        e.preventDefault();
+        setTimeout(() => {
+          const $nextWord = $currentWord.nextElementSibling;
+          const $nextLetter = $nextWord?.querySelector("t-letter");
+
+          if (!$nextWord) {
+            $input.value = "";
+            initGame();
+            return;
+          }
+
+          $currentWord.classList.remove("active", "marked");
+          $currentLetter.classList.remove("active");
+
+          $nextWord.classList.add("active");
+          $nextLetter.classList.add("active");
+
+          $input.value = "";
+
+          const hasMissedLetters =
+            $currentWord.querySelectorAll("t-letter:not(.correct)").length > 0;
+          const classToAdd = hasMissedLetters ? "marked" : "correct";
+          $currentWord.classList.add(classToAdd);
+        }, 100);
+        return;
+      }
+
+      if (e.key == "Backspace") {
+        const $prevWord = $currentWord.previousElementSibling;
+        const $prevLetter = $currentLetter.previousElementSibling;
+        if (!$prevWord && !$prevLetter) {
+          e.preventDefault;
+          return;
+        }
+        const $wordMarked = $text.querySelector("t-word.marked");
+        if ($wordMarked && !$prevLetter) {
+          e.preventDefault();
+          $prevWord.classList.remove("marked");
+          $prevWord.classList.add("active");
+
+          const $lastLetterToGo = $prevWord.querySelectorAll(
+            "t-letter.correct, t-letter.incorrect"
+          );
+          const $letterToGo = $lastLetterToGo[$lastLetterToGo.length - 1];
+
+          $currentLetter.classList.remove("active");
+          $letterToGo.nextElementSibling.classList.add("active");
+
+          $input.value = [
+            ...$prevWord.querySelectorAll(
+              "t-letter.correct, t-letter.incorrect"
+            ),
+          ]
+            .map(($el) => {
+              return $el.classList.contains("correct") ? $el.innerText : "*";
+            })
+            .join("");
+          return;
+        }
+      }
+    }
+    function onKeyUp(e) {
+      const $currentWord = document.querySelector("t-word.active");
+      const $currentLetter = document.querySelector("t-letter.active");
+
+      const currentword = $currentWord.innerText.trim();
+      $input.maxLength = currentword.length;
+      $currentLetter.classList.remove("active", "is-last");
+
+      const $allLettersOfWord = $currentWord.querySelectorAll("t-letter");
+      $allLettersOfWord.forEach(($letter) =>
+        $letter.classList.remove("correct", "incorrect")
+      );
+
+      $input.value.split("").forEach((char, index) => {
+        const $letter = $allLettersOfWord[index];
+        const letterToCheck = currentword[index];
+        const isCorrect = char == letterToCheck ? "correct" : "incorrect";
+        $letter.classList.add(isCorrect);
+      });
+
+      const inputlenght = $input.value.length;
+      const $nextActiveLetter = $allLettersOfWord[inputlenght];
+
+      if ($nextActiveLetter) {
+        $nextActiveLetter.classList.add("active");
+      } else {
+        $currentLetter.classList.add("active", "is-last");
+      }
+    }
+  </script>
+</html>

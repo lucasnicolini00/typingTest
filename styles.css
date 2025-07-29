@@ -1,0 +1,70 @@
+:root {
+  background-color: #333;
+}
+
+body {
+  color: #999;
+  font-size: 30px;
+  display: grid;
+  justify-items: center;
+  font-family: monospace;
+  padding: 16px;
+}
+
+p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+}
+input {
+  z-index: -999;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+t-letter {
+  color: #999;
+  position: relative;
+
+  &.active::before {
+    content: "|";
+    color: yellowgreen;
+    position: absolute;
+    left: -43%;
+    font-size: 25px;
+    animation: 1s blink infinite ease-in-out;
+  }
+
+  &.active.is-last::before {
+    left: 40%;
+  }
+}
+
+t-word {
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease-in-out;
+
+  &.marked {
+    border-color: red;
+  }
+}
+
+@keyframes blink {
+  0%,
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0;
+  }
+}
+
+.correct {
+  color: rgb(130, 214, 4);
+}
+.incorrect {
+  color: rgb(189, 12, 12);
+}
