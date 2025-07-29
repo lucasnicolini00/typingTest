@@ -2,6 +2,10 @@
 
 A simple web-based typing test built with vanilla JavaScript, HTML, and CSS.
 
+## Demo
+
+Try it online: [https://typing-test-seven-wheat.vercel.app/](https://typing-test-seven-wheat.vercel.app/)
+
 ## Features
 
 - Random word selection for each test
